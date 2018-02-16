@@ -22,22 +22,22 @@ require "logstash/namespace"
 # Google deps
 require "google/api_client"
 
-# This is a https://github.com/elastic/logstash[Logstash] input plugin for 
-# https://cloud.google.com/pubsub/[Google Pub/Sub]. The plugin can subscribe 
+# This is a https://github.com/elastic/logstash[Logstash] input plugin for
+# https://cloud.google.com/pubsub/[Google Pub/Sub]. The plugin can subscribe
 # to a topic and ingest messages.
 #
-# The main motivation behind the development of this plugin was to ingest 
-# https://cloud.google.com/logging/[Stackdriver Logging] messages via the 
-# https://cloud.google.com/logging/docs/export/using_exported_logs[Exported Logs] 
+# The main motivation behind the development of this plugin was to ingest
+# https://cloud.google.com/logging/[Stackdriver Logging] messages via the
+# https://cloud.google.com/logging/docs/export/using_exported_logs[Exported Logs]
 # feature of Stackdriver Logging.
 #
 # ==== Prerequisites
 #
-# You must first create a Google Cloud Platform project and enable the the 
-# Google Pub/Sub API. If you intend to use the plugin ingest Stackdriver Logging 
-# messages, you must also enable the Stackdriver Logging API and configure log 
-# exporting to Pub/Sub. There is plentiful information on 
-# https://cloud.google.com/ to get started: 
+# You must first create a Google Cloud Platform project and enable the the
+# Google Pub/Sub API. If you intend to use the plugin ingest Stackdriver Logging
+# messages, you must also enable the Stackdriver Logging API and configure log
+# exporting to Pub/Sub. There is plentiful information on
+# https://cloud.google.com/ to get started:
 #
 # - Google Cloud Platform Projects and https://cloud.google.com/docs/overview/[Overview]
 # - Google Cloud Pub/Sub https://cloud.google.com/pubsub/[documentation]
@@ -45,54 +45,54 @@ require "google/api_client"
 #
 # ==== Cloud Pub/Sub
 #
-# Currently, this module requires you to create a `topic` manually and specify 
-# it in the logstash config file. You must also specify a `subscription`, but 
-# the plugin will attempt to create the pull-based `subscription` on its own. 
+# Currently, this module requires you to create a `topic` manually and specify
+# it in the logstash config file. You must also specify a `subscription`, but
+# the plugin will attempt to create the pull-based `subscription` on its own.
 #
-# All messages received from Pub/Sub will be converted to a logstash `event` 
-# and added to the processing pipeline queue. All Pub/Sub messages will be 
-# `acknowledged` and removed from the Pub/Sub `topic` (please see more about 
-# https://cloud.google.com/pubsub/overview#concepts)[Pub/Sub concepts]. 
+# All messages received from Pub/Sub will be converted to a logstash `event`
+# and added to the processing pipeline queue. All Pub/Sub messages will be
+# `acknowledged` and removed from the Pub/Sub `topic` (please see more about
+# https://cloud.google.com/pubsub/overview#concepts)[Pub/Sub concepts].
 #
-# It is generally assumed that incoming messages will be in JSON and added to 
-# the logstash `event` as-is. However, if a plain text message is received, the 
-# plugin will return the raw text in as `raw_message` in the logstash `event`. 
+# It is generally assumed that incoming messages will be in JSON and added to
+# the logstash `event` as-is. However, if a plain text message is received, the
+# plugin will return the raw text in as `raw_message` in the logstash `event`.
 #
 # ==== Authentication
 #
-# You have two options for authentication depending on where you run Logstash. 
+# You have two options for authentication depending on where you run Logstash.
 #
-# 1. If you are running Logstash outside of Google Cloud Platform, then you will 
-# need to create a Google Cloud Platform Service Account and specify the full 
-# path to the JSON private key file in your config. You must assign sufficient 
-# roles to the Service Account to create a subscription and to pull messages 
-# from the subscription. Learn more about GCP Service Accounts and IAM roles 
+# 1. If you are running Logstash outside of Google Cloud Platform, then you will
+# need to create a Google Cloud Platform Service Account and specify the full
+# path to the JSON private key file in your config. You must assign sufficient
+# roles to the Service Account to create a subscription and to pull messages
+# from the subscription. Learn more about GCP Service Accounts and IAM roles
 # here:
 #
 #   - Google Cloud Platform IAM https://cloud.google.com/iam/[overview]
 #   - Creating Service Accounts https://cloud.google.com/iam/docs/creating-managing-service-accounts[overview]
 #   - Granting Roles https://cloud.google.com/iam/docs/granting-roles-to-service-accounts[overview]
 #
-# 1. If you are running Logstash on a Google Compute Engine instance, you may opt 
-# to use Application Default Credentials. In this case, you will not need to 
+# 1. If you are running Logstash on a Google Compute Engine instance, you may opt
+# to use Application Default Credentials. In this case, you will not need to
 # specify a JSON private key file in your config.
 #
 # ==== Stackdriver Logging (optional)
 #
-# If you intend to use the logstash plugin for Stackdriver Logging message 
-# ingestion, you must first manually set up the Export option to Cloud Pub/Sub and 
-# the manually create the `topic`. Please see the more detailed instructions at, 
-# https://cloud.google.com/logging/docs/export/using_exported_logs [Exported Logs] 
-# and ensure that the https://cloud.google.com/logging/docs/export/configure_export#manual-access-pubsub[necessary permissions] 
+# If you intend to use the logstash plugin for Stackdriver Logging message
+# ingestion, you must first manually set up the Export option to Cloud Pub/Sub and
+# the manually create the `topic`. Please see the more detailed instructions at,
+# https://cloud.google.com/logging/docs/export/using_exported_logs [Exported Logs]
+# and ensure that the https://cloud.google.com/logging/docs/export/configure_export#manual-access-pubsub[necessary permissions]
 # have also been manually configured.
 #
-# Logging messages from Stackdriver Logging exported to Pub/Sub are received as 
-# JSON and converted to a logstash `event` as-is in 
+# Logging messages from Stackdriver Logging exported to Pub/Sub are received as
+# JSON and converted to a logstash `event` as-is in
 # https://cloud.google.com/logging/docs/export/using_exported_logs#log_entries_in_google_pubsub_topics[this format].
 #
 # ==== Sample Configuration
 #
-# Below is a copy of the included `example.conf-tmpl` file that shows a basic 
+# Below is a copy of the included `example.conf-tmpl` file that shows a basic
 # configuration for this plugin.
 #
 # [source,ruby]
@@ -228,9 +228,10 @@ class LogStash::Inputs::GooglePubSub < LogStash::Inputs::Base
     end # if !@subscription
 
     @logger.debug("Pulling messages from sub '#{subscription}'")
+
     while !stop?
       # Pull and queue messages
-      messages = []
+
       result = request(
         :api_method => @pubsub.projects.subscriptions.pull,
         :parameters => {'subscription' => @subscription},
@@ -240,14 +241,18 @@ class LogStash::Inputs::GooglePubSub < LogStash::Inputs::Base
         }
       )
 
-      if !result.error?
-        messages = JSON.parse(result.body)
-        if messages.key?("receivedMessages")
-          messages = messages["receivedMessages"]
-        end
-      else
+      // Check for an error in the response from google or end loop
+      if result.error?
         @logger.error("Error pulling messages:'#{result.error_message}'")
+        next
       end
+
+      jsonBody = JSON.parse(result.body)
+
+      // Check for receivedMessages in the reponse for google or end loop
+      next unless jsonBody.has_key?("receivedMessages")
+
+      messages = jsonBody["receivedMessages"]
 
       if messages.any?
         messages.each do |msg|
@@ -275,7 +280,9 @@ class LogStash::Inputs::GooglePubSub < LogStash::Inputs::Base
         if result.error?
           @logger.error("Error #{result.status}: #{result.error_message}")
         end
+
       end # if messages
     end # loop
   end # def run
+
 end # class LogStash::Inputs::GooglePubSub
